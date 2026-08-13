@@ -126,7 +126,7 @@ fn quiet_or_capture(occupancy: Bitboard, to: Square) -> MoveFlags {
     }
 }
 
-unsafe fn compute_attacked_without_king<Color: ColorLogic>(position: &Position) -> Bitboard {
+fn compute_attacked_without_king<Color: ColorLogic>(position: &Position) -> Bitboard {
     let king = position.bitboard(Piece::King, Color::COLOR);
     let mut banned = Bitboard(0);
 
@@ -136,12 +136,7 @@ unsafe fn compute_attacked_without_king<Color: ColorLogic>(position: &Position) 
     banned |= pl | pr;
 
     // Calculate attack from enemy king.
-    banned |= lookup::king_attack(unsafe {
-        position
-            .bitboard(Piece::King, !Color::COLOR)
-            .next()
-            .unwrap_unchecked()
-    });
+    banned |= lookup::king_attack(position.king_square(!Color::COLOR));
 
     // Calculate attack from enemy knights.
     for from in position.bitboard(Piece::Knight, !Color::COLOR) {
@@ -167,7 +162,7 @@ unsafe fn compute_attacked_without_king<Color: ColorLogic>(position: &Position) 
 
 /// Compute the checkmask, orthogonal-pinmask, and diagonal-pinmask all in one go. These are
 /// returned in that order.
-unsafe fn compute_checkmask_and_pinmasks<Color: ColorLogic>(
+fn compute_checkmask_and_pinmasks<Color: ColorLogic>(
     king_square: Square,
     position: &Position,
 ) -> (Bitboard, Bitboard, Bitboard) {
@@ -228,27 +223,28 @@ unsafe fn compute_checkmask_and_pinmasks<Color: ColorLogic>(
 }
 
 #[inline(never)]
-unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
-    moves: &mut MoveList,
+unsafe fn generate_all_legal_moves_impl<Color: ColorLogic, OnMove>(
     position: &Position,
     castling_rights: CastlingRights,
     en_passant_square: Option<Square>,
-) {
+    mut on_move: OnMove,
+) where
+    OnMove: FnMut(Move),
+{
     // Obtain all pieces.
     let pawns = position.bitboard(Piece::Pawn, Color::COLOR);
     let knights = position.bitboard(Piece::Knight, Color::COLOR);
     let bishops = position.bitboard(Piece::Bishop, Color::COLOR);
     let rooks = position.bitboard(Piece::Rook, Color::COLOR);
     let queens = position.bitboard(Piece::Queen, Color::COLOR);
-    let king = position.bitboard(Piece::King, Color::COLOR);
     let self_occupancy = position.color_bitboard(Color::COLOR);
     let other_occupancy = position.color_bitboard(!Color::COLOR);
     let occupied = position.occupied();
 
-    let king_square = unsafe { king.clone().next().unwrap_unchecked() };
-    let banned = unsafe { compute_attacked_without_king::<Color>(position) };
+    let king_square = position.king_square(Color::COLOR);
+    let banned = compute_attacked_without_king::<Color>(position);
     let (checkmask, pin_hv, pin_d) =
-        unsafe { compute_checkmask_and_pinmasks::<Color>(king_square, position) };
+        compute_checkmask_and_pinmasks::<Color>(king_square, position);
     let moveable = !self_occupancy & checkmask;
 
     // Generate legal pawn moves.
@@ -299,48 +295,44 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
             left_capture &= !Color::PAWN_LAST_RANK;
             right_capture &= !Color::PAWN_LAST_RANK;
 
-            unsafe {
-                for from in quiet_promotion {
-                    let to = from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET);
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::QueenPromotion));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::RookPromotion));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::KnightPromotion));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::BishopPromotion));
-                }
-                for from in left_capture_promotion {
-                    let to = from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET - 1);
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::QueenPromotionCapture));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::RookPromotionCapture));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::KnightPromotionCapture));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::BishopPromotionCapture));
-                }
-                for from in right_capture_promotion {
-                    let to = from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET + 1);
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::QueenPromotionCapture));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::RookPromotionCapture));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::KnightPromotionCapture));
-                    moves.push_unchecked(Move::new(from, to, MoveFlags::BishopPromotionCapture));
-                }
+            for from in quiet_promotion {
+                let to = unsafe { from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET) };
+                on_move(Move::new(from, to, MoveFlags::QueenPromotion));
+                on_move(Move::new(from, to, MoveFlags::RookPromotion));
+                on_move(Move::new(from, to, MoveFlags::KnightPromotion));
+                on_move(Move::new(from, to, MoveFlags::BishopPromotion));
+            }
+            for from in left_capture_promotion {
+                let to = unsafe { from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET - 1) };
+                on_move(Move::new(from, to, MoveFlags::QueenPromotionCapture));
+                on_move(Move::new(from, to, MoveFlags::RookPromotionCapture));
+                on_move(Move::new(from, to, MoveFlags::KnightPromotionCapture));
+                on_move(Move::new(from, to, MoveFlags::BishopPromotionCapture));
+            }
+            for from in right_capture_promotion {
+                let to = unsafe { from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET + 1) };
+                on_move(Move::new(from, to, MoveFlags::QueenPromotionCapture));
+                on_move(Move::new(from, to, MoveFlags::RookPromotionCapture));
+                on_move(Move::new(from, to, MoveFlags::KnightPromotionCapture));
+                on_move(Move::new(from, to, MoveFlags::BishopPromotionCapture));
             }
         }
 
-        unsafe {
-            for from in quiet {
-                let to = from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET);
-                moves.push_unchecked(Move::new(from, to, MoveFlags::Quiet));
-            }
-            for from in double {
-                let to = from.offset_by_unchecked(Color::DOUBLE_FORWARD_SQUARE_OFFSET);
-                moves.push_unchecked(Move::new(from, to, MoveFlags::DoublePawnPush));
-            }
-            for from in left_capture {
-                let to = from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET - 1);
-                moves.push_unchecked(Move::new(from, to, MoveFlags::Capture));
-            }
-            for from in right_capture {
-                let to = from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET + 1);
-                moves.push_unchecked(Move::new(from, to, MoveFlags::Capture));
-            }
+        for from in quiet {
+            let to = unsafe { from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET) };
+            on_move(Move::new(from, to, MoveFlags::Quiet));
+        }
+        for from in double {
+            let to = unsafe { from.offset_by_unchecked(Color::DOUBLE_FORWARD_SQUARE_OFFSET) };
+            on_move(Move::new(from, to, MoveFlags::DoublePawnPush));
+        }
+        for from in left_capture {
+            let to = unsafe { from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET - 1) };
+            on_move(Move::new(from, to, MoveFlags::Capture));
+        }
+        for from in right_capture {
+            let to = unsafe { from.offset_by_unchecked(Color::FORWARD_SQUARE_OFFSET + 1) };
+            on_move(Move::new(from, to, MoveFlags::Capture));
         }
 
         if let Some(ep_square) = en_passant_square {
@@ -364,11 +356,11 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
 
                 if let Some(left_ep_square) = left_ep.next() {
                     let mv = Move::new(left_ep_square, ep_square, MoveFlags::EnPassantCapture);
-                    unsafe { moves.push_unchecked(mv) };
+                    on_move(mv);
                 }
                 if let Some(right_ep_square) = right_ep.next() {
                     let mv = Move::new(right_ep_square, ep_square, MoveFlags::EnPassantCapture);
-                    unsafe { moves.push_unchecked(mv) };
+                    on_move(mv);
                 }
             }
         }
@@ -381,7 +373,7 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
             let legal = lookup::knight_attack(from) & moveable;
             for to in legal {
                 let mv = Move::new(from, to, quiet_or_capture(other_occupancy, to));
-                unsafe { moves.push_unchecked(mv) };
+                on_move(mv);
             }
         }
     }
@@ -395,14 +387,14 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
             let legal = lookup::bishop_attack(from, occupied) & moveable;
             for to in legal {
                 let mv = Move::new(from, to, quiet_or_capture(other_occupancy, to));
-                unsafe { moves.push_unchecked(mv) };
+                on_move(mv);
             }
         }
         for from in pinned_bishops {
             let legal = lookup::bishop_attack(from, occupied) & moveable & pin_d;
             for to in legal {
                 let mv = Move::new(from, to, quiet_or_capture(other_occupancy, to));
-                unsafe { moves.push_unchecked(mv) };
+                on_move(mv);
             }
         }
     }
@@ -416,14 +408,14 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
             let legal = lookup::rook_attack(from, occupied) & moveable;
             for to in legal {
                 let mv = Move::new(from, to, quiet_or_capture(other_occupancy, to));
-                unsafe { moves.push_unchecked(mv) };
+                on_move(mv);
             }
         }
         for from in pinned_rooks {
             let legal = lookup::rook_attack(from, occupied) & moveable & pin_hv;
             for to in legal {
                 let mv = Move::new(from, to, quiet_or_capture(other_occupancy, to));
-                unsafe { moves.push_unchecked(mv) };
+                on_move(mv);
             }
         }
     }
@@ -433,7 +425,7 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
         let king_moves = lookup::king_attack(king_square) & !(banned | self_occupancy);
         for to in king_moves {
             let mv = Move::new(king_square, to, quiet_or_capture(other_occupancy, to));
-            unsafe { moves.push_unchecked(mv) };
+            on_move(mv);
         }
 
         if castling_rights.has_any(Color::KINGSIDE_CASTLE_FLAG | Color::QUEENSIDE_CASTLE_FLAG) {
@@ -441,14 +433,14 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
                 && (Color::SHOULD_NOT_ATTACKED_KINGSIDE_DURING_CASTLING & banned).is_empty()
                 && castling_rights.has_any(Color::KINGSIDE_CASTLE_FLAG)
             {
-                unsafe { moves.push_unchecked(Color::KINGSIDE_CASTLE_MOVE) };
+                on_move(Color::KINGSIDE_CASTLE_MOVE);
             }
 
             if (Color::SHOULD_UNOCCUPIED_QUEENSIDE_DURING_CASTLING & occupied).is_empty()
                 && (Color::SHOULD_NOT_ATTACKED_QUEENSIDE_DURING_CASTLING & banned).is_empty()
                 && castling_rights.has_any(Color::QUEENSIDE_CASTLE_FLAG)
             {
-                unsafe { moves.push_unchecked(Color::QUEENSIDE_CASTLE_MOVE) };
+                on_move(Color::QUEENSIDE_CASTLE_MOVE);
             }
         }
     }
@@ -458,7 +450,7 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic>(
 ///
 /// ## Safety
 ///
-/// The provided arguments must detail a fully valid chess position.
+/// The provided en-passant square must be valid.
 #[inline(always)]
 pub unsafe fn generate_all_legal_moves(
     position: &Position,
@@ -478,20 +470,26 @@ pub unsafe fn generate_all_legal_moves(
     //     Buggy 6: 350 -> 385
     let mut moves = MoveList::new();
 
-    // SAFETY: The helper function has the same safety guarantee.
+    // SAFETY: This callback is only used as the callback argument of the implementation function.
+    // The implementation function is guaranteed to not push more than 271 moves, and the move list
+    // starts from zero and has a 271 move capacity. Thus, this is safe where it is used.
+    let callback = |mv| unsafe { moves.push_unchecked(mv) };
+
+    // SAFETY: The implementation function has the same safety guarantee, that is, the provided
+    // position details are valid.
     unsafe {
         match color {
-            Color::White => generate_all_legal_moves_impl::<White>(
-                &mut moves,
+            Color::White => generate_all_legal_moves_impl::<White, _>(
                 position,
                 castling_rights,
                 en_passant_square,
+                callback,
             ),
-            Color::Black => generate_all_legal_moves_impl::<Black>(
-                &mut moves,
+            Color::Black => generate_all_legal_moves_impl::<Black, _>(
                 position,
                 castling_rights,
                 en_passant_square,
+                callback,
             ),
         }
     }
@@ -500,11 +498,7 @@ pub unsafe fn generate_all_legal_moves(
 }
 
 /// Determines all attackers of a given square, where the given color is the one attacking.
-///
-/// ## Safety
-///
-/// The provided arguments must detail a fully valid chess position.
-pub unsafe fn square_attackers(position: &Position, color: Color, square: Square) -> Bitboard {
+pub fn square_attackers(position: &Position, color: Color, square: Square) -> Bitboard {
     let mask = Bitboard::from_square(square);
     let occupied = position.occupied();
 

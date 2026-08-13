@@ -1,7 +1,7 @@
 use crate::utils::*;
 
 /// Computes the bitboard of bishop attack squares from a square and an occupancy bitboard.
-/// 
+///
 /// This does not include the bishop itself, but does include attacked pieces.
 #[inline(always)]
 pub fn bishop_attack(from: Square, occupied: Bitboard) -> Bitboard {
@@ -14,7 +14,7 @@ pub fn bishop_attack(from: Square, occupied: Bitboard) -> Bitboard {
 }
 
 /// Computes the bitboard of bishop attack squares from a square without any occupancy.
-/// 
+///
 /// This does not include the bishop itself.
 #[inline(always)]
 pub fn bishop_attack_unoccupied(from: Square) -> Bitboard {
@@ -25,7 +25,7 @@ pub fn bishop_attack_unoccupied(from: Square) -> Bitboard {
 }
 
 /// Computes the bitboard of rook attack squares from a square and an occupancy bitboard.
-/// 
+///
 /// This does not include the rook itself, but does include attacked pieces.
 #[inline(always)]
 pub fn rook_attack(from: Square, occupied: Bitboard) -> Bitboard {
@@ -38,7 +38,7 @@ pub fn rook_attack(from: Square, occupied: Bitboard) -> Bitboard {
 }
 
 /// Computes the bitboard of rook attack squares from a square without any occupancy.
-/// 
+///
 /// This does not include the rook itself.
 #[inline(always)]
 pub fn rook_attack_unoccupied(from: Square) -> Bitboard {

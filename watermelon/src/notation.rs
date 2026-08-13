@@ -406,7 +406,7 @@ impl Position {
     ///
     /// This method will reject strings that contain any space character.
     pub fn from_fen(fen: &str) -> Option<Self> {
-        let mut position = Position::from_raw([Bitboard::EMPTY; 6], [Bitboard::EMPTY; 2])?;
+        let mut position = RawPosition::from_raw([Bitboard::EMPTY; 6], [Bitboard::EMPTY; 2])?;
 
         let mut row = 7;
         let mut col = 0;
@@ -453,6 +453,6 @@ impl Position {
             return None;
         }
 
-        Some(position)
+        Position::from_raw(position)
     }
 }

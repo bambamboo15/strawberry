@@ -108,7 +108,7 @@ impl Game {
 }
 
 /// Search object with no stored moves.
-/// 
+///
 /// This can be promoted to [`SearchOne`] or [`SearchMany`], which contain moves absolutely
 /// guaranteed legal for the current position. This allows operations to be done on the moves
 /// safely without double-checking their legality.
@@ -146,10 +146,10 @@ where
 }
 
 /// Search object with one stored move.
-/// 
+///
 /// This guarantees that the stored move is entirely legal for the current position, which allows
 /// operations to be done on the move safely without double-checking its legality.
-/// 
+///
 /// Additionally, if the [`Mutability`] for this is set to [`Exclusive`] (which you can get
 /// indirectly from [`Game::search_mut`]), you can use the [`Self::test`] method to test a move.
 /// After calling that, this object will still be accessbile for more operations.
@@ -188,7 +188,7 @@ where
 
         // SAFETY: The invariant guarantees this is a valid move for the current position.
         // All chess moves have a piece on the starting square.
-        unsafe { position.piece_at_unchecked(square) }
+        unsafe { position.as_raw().piece_at_unchecked(square) }
     }
 
     /// Returns the piece that is captured, if any.
@@ -196,7 +196,7 @@ where
     #[must_use]
     pub fn captured_piece(&self) -> Option<Piece> {
         if self.mv.flags().is_capture() {
-            let piece = self.game().position().piece_at(self.mv.to());
+            let piece = self.game().position().as_raw().piece_at(self.mv.to());
             Some(piece.unwrap_or(Piece::Pawn))
         } else {
             None
@@ -225,13 +225,13 @@ impl<'game> SearchOne<'game, Exclusive> {
 }
 
 /// Search object with a container of moves.
-/// 
+///
 /// This guarantees that the stored moves are entirely legal for the current position, which allows
 /// operations to be done on the moves safely without double-checking their legality.
-/// 
+///
 /// You can use the [`Self::as_one`] method with an index to obtain a [`SearchOne`] for the move at
 /// that index, which allows you to do operations specifically for that move, such as testing it.
-/// 
+///
 /// There are also numerous safe helper functions that perform common operations while keeping the
 /// legality invariant.
 pub struct SearchMany<'game, Moves, M>
@@ -269,9 +269,9 @@ where
     }
 
     /// Returns a [`SearchOne`] containing the move obtained by indexing the stored moves.
-    /// 
+    ///
     /// ## Panics
-    /// 
+    ///
     /// Panics when the indexing fails.
     #[inline]
     #[must_use]
@@ -336,9 +336,9 @@ where
     }
 
     /// Swaps two moves at the provided indices.
-    /// 
+    ///
     /// ## Panics
-    /// 
+    ///
     /// Panics if `a` or `b` are out of bounds.
     #[inline]
     pub fn swap(&mut self, a: usize, b: usize)

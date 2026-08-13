@@ -92,7 +92,7 @@ impl Square {
 }
 
 /// 64-bit value corresponding to squares on a chessboard, with correspondence as shown:
-/// 
+///
 /// ```txt
 /// 8  56 57 58 59 60 61 62 63
 /// 7  48 49 50 51 52 53 54 55
@@ -372,11 +372,11 @@ impl MoveFlags {
 }
 
 /// Compact representation of a chess move.
-/// 
+///
 /// - For a natural representation see [`MoveIntent`].
 /// - For a UCI representation see [`MoveIntent`].
 /// - For a SAN representation see [`SanMove`].
-/// 
+///
 /// [`MoveIntent`]: crate::notation::MoveIntent
 /// [`SanMove`]: crate::notation::SanMove
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -421,16 +421,19 @@ impl Move {
 /// color bitboards overlap, and the bitwise-or of the piece bitboards equals the bitwise-or of the
 /// color bitboards. Using a safe API on this structure guarantees these invariants.
 ///
-/// Notice that this by itself does not enforce legality requirements, such as king positioning. The
-/// user can place as many kings as they want, or pawns on the first and last rank, etc.
+/// Notice that this by itself does not enforce legality requirements, such as king or pawn
+/// positioning. If you want an API that does those, see [`Position`].
 #[derive(Clone, PartialEq, Eq)]
 #[repr(align(64))]
-pub struct Position {
+pub struct RawPosition {
     piece_bitboards: [Bitboard; 6],
     color_bitboards: [Bitboard; 2],
 }
 
-impl Position {
+impl RawPosition {
+    /// Construct a [`RawPosition`] from a group of eight [`Bitboard`] structures: six for the pieces
+    /// in order as they appear in the [`Piece`] enumeration, and two for the colors in order as they
+    /// appear in the [`Color`] enumeration.
     #[inline]
     #[must_use]
     pub fn from_raw(
@@ -462,12 +465,13 @@ impl Position {
             return None;
         }
 
-        Some(Position {
+        Some(RawPosition {
             piece_bitboards,
             color_bitboards,
         })
     }
 
+    /// Returns the bitboard for a piece (all colors included).
     #[inline]
     #[must_use]
     pub fn piece_bitboard(&self, piece: Piece) -> Bitboard {
@@ -475,6 +479,7 @@ impl Position {
         unsafe { *self.piece_bitboards.get_unchecked(piece as usize) }
     }
 
+    /// Returns the bitboard for a color (all pieces included).
     #[inline]
     #[must_use]
     pub fn color_bitboard(&self, color: Color) -> Bitboard {
@@ -482,24 +487,28 @@ impl Position {
         unsafe { *self.color_bitboards.get_unchecked(color as usize) }
     }
 
+    /// Returns the bitboard for a specific piece and color.
     #[inline]
     #[must_use]
     pub fn bitboard(&self, piece: Piece, color: Color) -> Bitboard {
         self.piece_bitboard(piece) & self.color_bitboard(color)
     }
 
+    /// Returns the bitboard representing all occupied squares.
     #[inline]
     #[must_use]
     pub fn occupied(&self) -> Bitboard {
         self.color_bitboard(Color::White) | self.color_bitboard(Color::Black)
     }
 
+    /// Determines if a square is occupied.
     #[inline]
     #[must_use]
-    pub fn occupied_at(&self, square: Square) -> bool {
+    pub fn is_occupied_at(&self, square: Square) -> bool {
         self.occupied().is_set_at(square)
     }
 
+    /// Determines the piece and color on a square (if any).
     #[inline]
     #[must_use]
     pub fn piece_color_at(&self, square: Square) -> Option<(Piece, Color)> {
@@ -515,6 +524,7 @@ impl Position {
         }
     }
 
+    /// Determines the color on a square (if any).
     #[inline]
     #[must_use]
     pub fn color_at(&self, square: Square) -> Option<Color> {
@@ -528,6 +538,38 @@ impl Position {
             (false, true) => Some(Color::Black),
             (false, false) => None,
         }
+    }
+
+    /// Determines the piece on a square (if any).
+    #[inline]
+    #[must_use]
+    pub fn piece_at(&self, square: Square) -> Option<Piece> {
+        if self.is_occupied_at(square) {
+            Some(unsafe { self.piece_at_unchecked(square) })
+        } else {
+            None
+        }
+    }
+
+    /// Removes the piece on a square (if any).
+    #[inline]
+    pub fn remove_piece_at(&mut self, square: Square) {
+        for bitboard in self.piece_bitboards.iter_mut() {
+            *bitboard &= !Bitboard::from_square(square);
+        }
+        for bitboard in self.color_bitboards.iter_mut() {
+            *bitboard &= !Bitboard::from_square(square);
+        }
+    }
+
+    /// Places a piece on a square (if any).
+    #[inline]
+    pub fn add_piece_at(&mut self, square: Square, piece: Piece, color: Color) {
+        self.remove_piece_at(square);
+
+        let mask = Bitboard::from_square(square);
+        self.piece_bitboards[piece as usize] ^= mask;
+        self.color_bitboards[color as usize] ^= mask;
     }
 
     // LLVM_FAILS_ELIDE_UNREACHABLE_BRANCH_WHEN_INLINING
@@ -548,35 +590,6 @@ impl Position {
 
     #[inline]
     #[must_use]
-    pub fn piece_at(&self, square: Square) -> Option<Piece> {
-        if self.occupied_at(square) {
-            Some(unsafe { self.piece_at_unchecked(square) })
-        } else {
-            None
-        }
-    }
-
-    #[inline]
-    pub fn remove_piece_at(&mut self, square: Square) {
-        for bitboard in self.piece_bitboards.iter_mut() {
-            *bitboard &= !Bitboard::from_square(square);
-        }
-        for bitboard in self.color_bitboards.iter_mut() {
-            *bitboard &= !Bitboard::from_square(square);
-        }
-    }
-
-    #[inline]
-    pub fn add_piece_at(&mut self, square: Square, piece: Piece, color: Color) {
-        self.remove_piece_at(square);
-
-        let mask = Bitboard::from_square(square);
-        self.piece_bitboards[piece as usize] ^= mask;
-        self.color_bitboards[color as usize] ^= mask;
-    }
-
-    #[inline]
-    #[must_use]
     pub unsafe fn piece_bitboard_mut(&mut self, piece: Piece) -> &mut Bitboard {
         // LLVM_FAILS_ELIDE_BOUNDS_CHECK_WHEN_INLINING
         unsafe { self.piece_bitboards.get_unchecked_mut(piece as usize) }
@@ -587,6 +600,102 @@ impl Position {
     pub unsafe fn color_bitboard_mut(&mut self, color: Color) -> &mut Bitboard {
         // LLVM_FAILS_ELIDE_BOUNDS_CHECK_WHEN_INLINING
         unsafe { self.color_bitboards.get_unchecked_mut(color as usize) }
+    }
+}
+
+/// Represents the positions of pieces on a board while enforcing these invariants:
+/// - There must be one of each king on the board.
+/// - Pawns must not be on the first or last ranks.
+#[derive(Clone, PartialEq, Eq)]
+pub struct Position(RawPosition);
+
+impl Position {
+    /// Construct a [`Position`] from a [`RawPosition`], checking if the invariants are met.
+    #[inline]
+    #[must_use]
+    pub fn from_raw(raw_position: RawPosition) -> Option<Self> {
+        if (raw_position.bitboard(Piece::King, Color::White)).count_ones() == 1
+            && (raw_position.bitboard(Piece::King, Color::Black)).count_ones() == 1
+            && (raw_position.piece_bitboard(Piece::Pawn) & Bitboard(0xFF000000000000FF)).is_empty()
+        {
+            Some(Position(raw_position))
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn as_raw(&self) -> &RawPosition {
+        &self.0
+    }
+
+    #[inline]
+    pub unsafe fn as_raw_mut(&mut self) -> &mut RawPosition {
+        &mut self.0
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn into_raw(self) -> RawPosition {
+        self.0
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn piece_bitboard(&self, piece: Piece) -> Bitboard {
+        self.0.piece_bitboard(piece)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn color_bitboard(&self, color: Color) -> Bitboard {
+        self.0.color_bitboard(color)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn bitboard(&self, piece: Piece, color: Color) -> Bitboard {
+        self.0.bitboard(piece, color)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn occupied(&self) -> Bitboard {
+        self.0.occupied()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn is_occupied_at(&self, square: Square) -> bool {
+        self.0.is_occupied_at(square)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn piece_color_at(&self, square: Square) -> Option<(Piece, Color)> {
+        self.0.piece_color_at(square)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn color_at(&self, square: Square) -> Option<Color> {
+        self.0.color_at(square)
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn piece_at(&self, square: Square) -> Option<Piece> {
+        self.0.piece_at(square)
+    }
+
+    /// Returns the square the king of the provided color is on.
+    #[inline]
+    #[must_use]
+    pub fn king_square(&self, color: Color) -> Square {
+        let square = self.0.bitboard(Piece::King, color).next();
+        // SAFETY: There is always exactly one king of each color.
+        unsafe { square.unwrap_unchecked() }
     }
 }
 
@@ -613,8 +722,8 @@ impl MoveList {
     /// Undefined behavior occurs when there are at least 271 moves before calling this method.
     #[inline]
     pub unsafe fn push_unchecked(&mut self, mv: Move) {
-        // SAFETY: The guarantee states that `length < 271` and there are `271` elements,
-        // so the unchecked memory access offset by `length` is safe.
+        // SAFETY: The guarantee upon construction implies that `length <= 271` holds
+        // after this call, which means `length < 271`, thus the indexing is safe.
         let uninit_slot = unsafe { self.moves.get_unchecked_mut(self.length) };
         uninit_slot.write(mv);
         self.length += 1;

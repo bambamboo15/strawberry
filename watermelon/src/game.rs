@@ -140,24 +140,15 @@ impl Game {
         unsafe { self.undo_state.last().unwrap_unchecked() }
     }
 
-    /// Returns the square the king of the provided color is on.
-    #[inline]
-    #[must_use]
-    pub fn king_square(&self, color: Color) -> Square {
-        let square = self.position().bitboard(Piece::King, color).next();
-        // SAFETY: There is always exactly one king of each color.
-        unsafe { square.unwrap_unchecked() }
-    }
-
     /// Determines if the current player is in check.
     #[inline]
     #[must_use]
     pub fn is_in_check(&self) -> bool {
         let position = self.position();
         let color = self.color;
-        let square = self.king_square(self.color);
+        let square = position.king_square(self.color);
         // SAFETY: This will always represent a valid chess position.
-        let attackers = unsafe { crate::movegen::square_attackers(position, !color, square) };
+        let attackers = crate::movegen::square_attackers(position, !color, square);
         attackers != Bitboard::EMPTY
     }
 
@@ -245,8 +236,8 @@ impl Game {
         let undo_state = self.undo_state.push_mut(undo_state);
 
         let (from, to, flags) = (mv.from(), mv.to(), mv.flags());
-        let piece_from = unsafe { position.piece_at_unchecked(from) };
-        let piece_to = unsafe { position.piece_at_unchecked(to) };
+        let piece_from = unsafe { position.as_raw().piece_at_unchecked(from) };
+        let piece_to = unsafe { position.as_raw().piece_at_unchecked(to) };
 
         // Update the half-move counter.
         undo_state.half_move_counter = std::hint::select_unpredictable(
@@ -324,8 +315,8 @@ impl Game {
 
             let mask = Bitboard::from_square(captured_square);
             unsafe {
-                *position.piece_bitboard_mut(captured_piece) ^= mask;
-                *position.color_bitboard_mut(!self.color) ^= mask;
+                *position.as_raw_mut().piece_bitboard_mut(captured_piece) ^= mask;
+                *position.as_raw_mut().color_bitboard_mut(!self.color) ^= mask;
             }
         }
 
@@ -334,9 +325,9 @@ impl Game {
         let to_mask = Bitboard::from_square(to);
         let placed_piece = flags.promotion_piece().unwrap_or(piece_from);
         unsafe {
-            *position.piece_bitboard_mut(piece_from) ^= from_mask;
-            *position.piece_bitboard_mut(placed_piece) ^= to_mask;
-            *position.color_bitboard_mut(self.color) ^= from_mask ^ to_mask;
+            *position.as_raw_mut().piece_bitboard_mut(piece_from) ^= from_mask;
+            *position.as_raw_mut().piece_bitboard_mut(placed_piece) ^= to_mask;
+            *position.as_raw_mut().color_bitboard_mut(self.color) ^= from_mask ^ to_mask;
         }
         undo_state.zobrist_hash ^= zobrist::piece_square_hash(self.color, piece_from, from);
         undo_state.zobrist_hash ^= zobrist::piece_square_hash(self.color, placed_piece, to);
@@ -375,8 +366,8 @@ impl Game {
 
             let mask = Bitboard::from_square(rook_from) ^ Bitboard::from_square(rook_to);
             unsafe {
-                *position.piece_bitboard_mut(Piece::Rook) ^= mask;
-                *position.color_bitboard_mut(self.color) ^= mask;
+                *position.as_raw_mut().piece_bitboard_mut(Piece::Rook) ^= mask;
+                *position.as_raw_mut().color_bitboard_mut(self.color) ^= mask;
             }
         }
 
@@ -403,7 +394,7 @@ impl Game {
     #[inline]
     #[must_use]
     pub(crate) fn legal_moves_raw(&self) -> MoveList {
-        // SAFETY: This will always represent a valid chess position.
+        // SAFETY: The en-passant square is valid.
         unsafe {
             movegen::generate_all_legal_moves(
                 self.position(),
