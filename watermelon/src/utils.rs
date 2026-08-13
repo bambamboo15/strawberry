@@ -261,8 +261,6 @@ impl CastlingRights {
     #[inline]
     #[must_use]
     pub fn value(self) -> u8 {
-        // SAFETY: The set of possible values is closed to the low nibble.
-        unsafe { std::hint::assert_unchecked(self.0 < 16) };
         self.0
     }
 
@@ -270,6 +268,13 @@ impl CastlingRights {
     #[must_use]
     pub fn has_any(self, other: CastlingRights) -> bool {
         self.0 & other.0 != 0
+    }
+
+    // TODO: Remove when Rust finally stabalizes const traits.
+    #[inline]
+    #[must_use]
+    pub const fn const_or(self, other: CastlingRights) -> CastlingRights {
+        CastlingRights(self.0 | other.0)
     }
 }
 
@@ -572,6 +577,12 @@ impl RawPosition {
         self.color_bitboards[color as usize] ^= mask;
     }
 
+    /// Returns the piece on a square without checking if a piece actually lies there.
+    ///
+    /// ## Implementation detail
+    ///
+    /// If you are a user do not rely on this behavior: this does not trigger undefined behavior
+    /// on empty squares and returns [`Piece::Pawn`] instead.
     // LLVM_FAILS_ELIDE_UNREACHABLE_BRANCH_WHEN_INLINING
     #[inline]
     #[must_use]

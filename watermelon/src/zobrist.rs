@@ -5,19 +5,20 @@ pub const SIDE_HASH: u64 = 0xa0f520a4c9fa5bcc;
 #[inline(always)]
 pub fn piece_square_hash(color: Color, piece: Piece, square: Square) -> u64 {
     let index = (color as usize * 8 + piece as usize) * 64 + square as usize;
-    // LLVM_FAILS_ELIDE_BOUNDS_CHECK_WHEN_INLINING
     // SAFETY: The table has a length of 1024, and the index has a maximum value of 895.
     *unsafe { tables::PIECE_SQUARE_TABLE.get_unchecked(index) }
 }
 
 #[inline(always)]
 pub fn en_passant_hash(square: Square) -> u64 {
-    tables::EN_PASSANT_TABLE[square.file()]
+    // SAFETY: The file of a square is <8, and the table has 8 elements, thus this indexing is safe.
+    *unsafe { tables::EN_PASSANT_TABLE.get_unchecked(square.file()) }
 }
 
 #[inline(always)]
 pub fn castling_hash(castling_rights: CastlingRights) -> u64 {
-    tables::CASTLING_TABLE[castling_rights.value() as usize]
+    // SAFETY: The value is only four bits, and this has length 16, thus this indexing is safe.
+    *unsafe { tables::CASTLING_TABLE.get_unchecked(castling_rights.value() as usize) }
 }
 
 #[rustfmt::skip]

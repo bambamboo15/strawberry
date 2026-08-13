@@ -223,7 +223,7 @@ impl Game {
     /// ## Safety
     ///
     /// The move must be legal.
-    #[inline]
+    #[inline(never)]
     pub unsafe fn play_unchecked(&mut self, mv: Move) {
         let position = self.position().clone();
         let undo_state = self.undo_state().clone();
@@ -259,45 +259,24 @@ impl Game {
             None
         };
 
-        // Castling rights.
+        // A castling right is lost when its king/rook moves, or when its rook is captured. LOOKUP
+        // maps these origin/destination squares to the rights they invalidate. Thus from/to can be
+        // handled without inspecting the pieces themselves. [This comment was written by ChatGPT]
+        const LOOKUP: [CastlingRights; 64] = {
+            let mut table = [CastlingRights::NONE; 64];
+            table[White::CASTLE_KING_FROM_SQUARE as usize] =
+                White::KINGSIDE_CASTLE_FLAG.const_or(White::QUEENSIDE_CASTLE_FLAG);
+            table[White::KINGSIDE_CASTLE_ROOK_FROM_SQUARE as usize] = White::KINGSIDE_CASTLE_FLAG;
+            table[White::QUEENSIDE_CASTLE_ROOK_FROM_SQUARE as usize] = White::QUEENSIDE_CASTLE_FLAG;
+            table[Black::CASTLE_KING_FROM_SQUARE as usize] =
+                Black::KINGSIDE_CASTLE_FLAG.const_or(Black::QUEENSIDE_CASTLE_FLAG);
+            table[Black::KINGSIDE_CASTLE_ROOK_FROM_SQUARE as usize] = Black::KINGSIDE_CASTLE_FLAG;
+            table[Black::QUEENSIDE_CASTLE_ROOK_FROM_SQUARE as usize] = Black::QUEENSIDE_CASTLE_FLAG;
+            table
+        };
+
         undo_state.zobrist_hash ^= zobrist::castling_hash(undo_state.castling_rights);
-        if self.color == Color::White {
-            if piece_to == Piece::Rook {
-                if to == Black::KINGSIDE_CASTLE_ROOK_FROM_SQUARE {
-                    undo_state.castling_rights &= !Black::KINGSIDE_CASTLE_FLAG;
-                } else if to == Black::QUEENSIDE_CASTLE_ROOK_FROM_SQUARE {
-                    undo_state.castling_rights &= !Black::QUEENSIDE_CASTLE_FLAG;
-                }
-            }
-            if piece_from == Piece::King {
-                undo_state.castling_rights &=
-                    !(White::KINGSIDE_CASTLE_FLAG | White::QUEENSIDE_CASTLE_FLAG);
-            } else if piece_from == Piece::Rook {
-                if from == White::KINGSIDE_CASTLE_ROOK_FROM_SQUARE {
-                    undo_state.castling_rights &= !White::KINGSIDE_CASTLE_FLAG;
-                } else if from == White::QUEENSIDE_CASTLE_ROOK_FROM_SQUARE {
-                    undo_state.castling_rights &= !White::QUEENSIDE_CASTLE_FLAG;
-                }
-            }
-        } else {
-            if piece_to == Piece::Rook {
-                if to == White::KINGSIDE_CASTLE_ROOK_FROM_SQUARE {
-                    undo_state.castling_rights &= !White::KINGSIDE_CASTLE_FLAG;
-                } else if to == White::QUEENSIDE_CASTLE_ROOK_FROM_SQUARE {
-                    undo_state.castling_rights &= !White::QUEENSIDE_CASTLE_FLAG;
-                }
-            }
-            if piece_from == Piece::King {
-                undo_state.castling_rights &=
-                    !(Black::KINGSIDE_CASTLE_FLAG | Black::QUEENSIDE_CASTLE_FLAG);
-            } else if piece_from == Piece::Rook {
-                if from == Black::KINGSIDE_CASTLE_ROOK_FROM_SQUARE {
-                    undo_state.castling_rights &= !Black::KINGSIDE_CASTLE_FLAG;
-                } else if from == Black::QUEENSIDE_CASTLE_ROOK_FROM_SQUARE {
-                    undo_state.castling_rights &= !Black::QUEENSIDE_CASTLE_FLAG;
-                }
-            }
-        }
+        undo_state.castling_rights &= !(LOOKUP[from as usize] | LOOKUP[to as usize]);
         undo_state.zobrist_hash ^= zobrist::castling_hash(undo_state.castling_rights);
 
         // Capture.
@@ -396,7 +375,7 @@ impl Game {
     pub(crate) fn legal_moves_raw(&self) -> MoveList {
         // SAFETY: The en-passant square is valid.
         unsafe {
-            movegen::generate_all_legal_moves(
+            movegen::generate_all_legal_moves::<false>(
                 self.position(),
                 self.color,
                 self.undo_state().castling_rights,

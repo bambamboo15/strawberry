@@ -1,0 +1,576 @@
+.section .text,"xr",one_only,watermelon::game::Game::play_unchecked,unique,0
+	.globl	watermelon::game::Game::play_unchecked
+	.p2align	4
+watermelon::game::Game::play_unchecked:
+	.cv_func_id 0
+		// watermelon\src\game.rs:227
+		pub unsafe fn play_unchecked(&mut self, mv: Move) {
+.seh_proc _ZN10watermelon4game4Game14play_unchecked17h9409896adc71e063E
+	push rbp
+	.seh_pushreg rbp
+	push r15
+	.seh_pushreg r15
+	push r14
+	.seh_pushreg r14
+	push r13
+	.seh_pushreg r13
+	push r12
+	.seh_pushreg r12
+	push rsi
+	.seh_pushreg rsi
+	push rdi
+	.seh_pushreg rdi
+	push rbx
+	.seh_pushreg rbx
+	sub rsp, 248
+	.seh_stackalloc 248
+	lea rbp, [rsp + 128]
+	.seh_setframe rbp, 128
+	.seh_endprologue
+	and rsp, -64
+	.cv_inline_site_id 1 within 0 inlined_at 1 228 0
+	.cv_inline_site_id 2 within 1 inlined_at 1 90 0
+	.cv_inline_site_id 3 within 2 inlined_at 2 3755 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1840
+		&*core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>(self.as_ptr(), self.len)
+	mov rdi, qword ptr [rcx + 16]
+	.cv_inline_site_id 4 within 3 inlined_at 2 1840 0
+	.cv_inline_site_id 5 within 4 inlined_at 2 1941 0
+	.cv_inline_site_id 6 within 5 inlined_at 3 296 0
+	.cv_inline_site_id 7 within 6 inlined_at 3 609 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\raw_vec\mod.rs:614
+		self.ptr.cast().as_non_null_ptr()
+	mov rax, qword ptr [rcx + 8]
+	.cv_inline_site_id 8 within 0 inlined_at 1 229 0
+	.cv_inline_site_id 9 within 8 inlined_at 1 140 0
+	.cv_inline_site_id 10 within 9 inlined_at 2 3755 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1840
+		&*core::intrinsics::aggregate_raw_ptr::<*const [T], _, _>(self.as_ptr(), self.len)
+	mov r9, qword ptr [rcx + 40]
+	.cv_inline_site_id 11 within 10 inlined_at 2 1840 0
+	.cv_inline_site_id 12 within 11 inlined_at 2 1941 0
+	.cv_inline_site_id 13 within 12 inlined_at 3 296 0
+	.cv_inline_site_id 14 within 13 inlined_at 3 609 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\raw_vec\mod.rs:614
+		self.ptr.cast().as_non_null_ptr()
+	mov r8, qword ptr [rcx + 32]
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\mod.rs:282
+		if let [.., last] = self { Some(last) } else { None }
+	mov r14, rdi
+	shl r14, 6
+	lea r9, [r9 + 2*r9]
+	mov rbx, rdi
+		// watermelon\src\utils.rs:620
+		#[derive(Clone, PartialEq, Eq)]
+	vmovaps ymm0, ymmword ptr [rax + r14 - 64]
+	vmovaps ymm1, ymmword ptr [rax + r14 - 32]
+	vmovaps ymmword ptr [rsp + 160], ymm1
+	vmovaps ymmword ptr [rsp + 128], ymm0
+		// watermelon\src\game.rs:394
+		#[derive(Debug, Clone, Copy)]
+	mov r10, qword ptr [r8 + 8*r9 - 8]
+	mov qword ptr [rsp + 112], r10
+	vmovups xmm0, xmmword ptr [r8 + 8*r9 - 24]
+	vmovaps xmmword ptr [rsp + 96], xmm0
+	.cv_inline_site_id 15 within 0 inlined_at 1 235 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1040
+		if len == self.buf.capacity() {
+	cmp rdi, qword ptr [rcx]
+	je .LBB0_1
+.LBB0_2:
+	.cv_inline_site_id 16 within 15 inlined_at 2 1045 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ptr\mod.rs:1921
+		intrinsics::write_via_move(dst, src)
+	vmovaps ymm0, ymmword ptr [rsp + 128]
+	vmovaps ymm1, ymmword ptr [rsp + 160]
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1046
+		self.len = len + 1;
+	inc rdi
+	.cv_inline_site_id 17 within 15 inlined_at 2 1044 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ptr\mut_ptr.rs:961
+		unsafe { intrinsics::offset(self, count) }
+	lea rsi, [rax + r14]
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ptr\mod.rs:1921
+		intrinsics::write_via_move(dst, src)
+	vmovaps ymmword ptr [rax + r14 + 32], ymm1
+	vmovaps ymmword ptr [rax + r14], ymm0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1046
+		self.len = len + 1;
+	mov qword ptr [rcx + 16], rdi
+	.cv_inline_site_id 18 within 0 inlined_at 1 236 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1040
+		if len == self.buf.capacity() {
+	cmp rbx, qword ptr [rcx + 24]
+	je .LBB0_3
+.LBB0_4:
+	.cv_inline_site_id 19 within 18 inlined_at 2 1044 0
+	.cv_inline_site_id 20 within 19 inlined_at 2 2025 0
+	.cv_inline_site_id 21 within 20 inlined_at 3 296 0
+	.cv_inline_site_id 22 within 21 inlined_at 3 609 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\raw_vec\mod.rs:614
+		self.ptr.cast().as_non_null_ptr()
+	mov r13, qword ptr [rcx + 32]
+	.cv_inline_site_id 23 within 18 inlined_at 2 1045 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ptr\mod.rs:1921
+		intrinsics::write_via_move(dst, src)
+	mov r8, qword ptr [rsp + 112]
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ptr\mut_ptr.rs:961
+		unsafe { intrinsics::offset(self, count) }
+	lea rax, [rbx + 2*rbx]
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1046
+		self.len = len + 1;
+	inc rbx
+	mov qword ptr [rsp + 80], rsi
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ptr\mod.rs:1921
+		intrinsics::write_via_move(dst, src)
+	mov qword ptr [r13 + 8*rax + 16], r8
+	.cv_inline_site_id 24 within 0 inlined_at 1 238 0
+		// watermelon\src\utils.rs:403
+		unsafe { std::mem::transmute((self.0 as u32 >> 6) & 0x3F) }
+	movzx r8d, dx
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ptr\mod.rs:1921
+		intrinsics::write_via_move(dst, src)
+	vmovaps xmm0, xmmword ptr [rsp + 96]
+		// watermelon\src\utils.rs:403
+		unsafe { std::mem::transmute((self.0 as u32 >> 6) & 0x3F) }
+	mov r12d, r8d
+	shr r12d, 6
+		// watermelon\src\utils.rs:410
+		unsafe { std::mem::transmute((self.0 as u32) & 0x3F) }
+	mov r9d, r8d
+	mov qword ptr [rsp + 88], r8
+		// watermelon\src\utils.rs:417
+		unsafe { std::mem::transmute(self.0 as u32 >> 12) }
+	shr r8d, 12
+		// watermelon\src\utils.rs:410
+		unsafe { std::mem::transmute((self.0 as u32) & 0x3F) }
+	and r9d, 63
+		// watermelon\src\utils.rs:403
+		unsafe { std::mem::transmute((self.0 as u32 >> 6) & 0x3F) }
+	mov r10d, r12d
+	and r10d, 63
+	mov dword ptr [rsp + 76], r8d
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\ptr\mod.rs:1921
+		intrinsics::write_via_move(dst, src)
+	vmovups xmmword ptr [r13 + 8*rax], xmm0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1046
+		self.len = len + 1;
+	mov qword ptr [rcx + 40], rbx
+	.cv_inline_site_id 25 within 0 inlined_at 1 239 0
+		// watermelon\src\utils.rs:590
+		let layer_0 = self.piece_bitboards[1] | self.piece_bitboards[3] | self.piece_bitboards[5];
+	mov r14, qword ptr [rsi + 24]
+	mov r15, qword ptr [rsi + 8]
+	mov rdi, qword ptr [rsi + 40]
+		// watermelon\src\game.rs:246
+		undo_state.half_move_counter + 1,
+	mov r8, qword ptr [r13 + 8*rax + 8]
+	.cv_inline_site_id 26 within 25 inlined_at 5 590 0
+		// watermelon\src\utils.rs:191
+		Bitboard(self.0 | rhs.0)
+	or r15, r14
+	.cv_inline_site_id 27 within 25 inlined_at 5 591 0
+	or r14, qword ptr [rsi + 16]
+		// watermelon\src\game.rs:246
+		undo_state.half_move_counter + 1,
+	inc r8
+	.cv_inline_site_id 28 within 25 inlined_at 5 590 0
+		// watermelon\src\utils.rs:191
+		Bitboard(self.0 | rhs.0)
+	or r15, rdi
+	.cv_inline_site_id 29 within 25 inlined_at 5 592 0
+	or rdi, qword ptr [rsi + 32]
+	xor esi, esi
+		// watermelon\src\utils.rs:593
+		let bit_0 = (layer_0.0 >> (square as u32)) & 1;
+	shrx r11, r15, r10
+	and r11d, 1
+		// watermelon\src\utils.rs:594
+		let bit_1 = (layer_1.0 >> (square as u32)) & 1;
+	shrx rbx, r14, r10
+		// watermelon\src\utils.rs:596
+		let decoded = bit_0 | (bit_1 << 1) | (bit_2 << 2);
+	and ebx, 1
+	lea rbx, [r11 + 2*rbx]
+		// watermelon\src\utils.rs:595
+		let bit_2 = (layer_2.0 >> (square as u32)) & 1;
+	shrx r11, rdi, r10
+		// watermelon\src\utils.rs:596
+		let decoded = bit_0 | (bit_1 << 1) | (bit_2 << 2);
+	shl r11d, 2
+	and r11d, 4
+		// watermelon\src\game.rs:244
+		piece_from == Piece::Pawn || mv.flags().is_capture(),
+	or r11, rbx
+		// watermelon\src\game.rs:278
+		undo_state.zobrist_hash ^= zobrist::castling_hash(undo_state.castling_rights);
+	mov rbx, qword ptr [r13 + 8*rax]
+	.cv_inline_site_id 30 within 0 inlined_at 1 243 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\hint.rs:876
+		crate::intrinsics::select_unpredictable(condition, true_val, false_val).assume_init()
+	cmove r8, rsi
+	test edx, 16384
+	cmovne r8, rsi
+		// watermelon\src\game.rs:243
+		undo_state.half_move_counter = std::hint::select_unpredictable(
+	mov qword ptr [r13 + 8*rax + 8], r8
+		// watermelon\src\game.rs:250
+		if let Some(ep_square) = undo_state.en_passant_square {
+	mov edx, dword ptr [r13 + 8*rax + 16]
+	cmp rdx, 64
+	je .LBB0_6
+	.cv_inline_site_id 31 within 0 inlined_at 1 251 0
+	.cv_inline_site_id 32 within 31 inlined_at 9 15 0
+		// watermelon\src\utils.rs:75
+		(self as usize) & 7
+	and edx, 7
+	.cv_inline_site_id 33 within 32 inlined_at 4 646 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:253
+		slice_get_unchecked(slice, self)
+	lea r8, [rip + watermelon::zobrist::tables::EN_PASSANT_TABLE]
+		// watermelon\src\game.rs:251
+		undo_state.zobrist_hash ^= zobrist::en_passant_hash(ep_square);
+	xor rbx, qword ptr [r8 + 8*rdx]
+.LBB0_6:
+		// watermelon\src\game.rs:254
+		undo_state.en_passant_square = if flags == MoveFlags::DoublePawnPush {
+	lea rdx, [r13 + 8*rax]
+	mov r13d, dword ptr [rsp + 76]
+	mov eax, 64
+	cmp r13d, 1
+	jne .LBB0_8
+		// watermelon\src\game.rs:255
+		let square = unsafe { from.offset_by_unchecked(8 - 16 * self.color as i32) };
+	movzx r8d, byte ptr [rcx + 48]
+	.cv_inline_site_id 34 within 0 inlined_at 1 256 0
+	.cv_inline_site_id 35 within 34 inlined_at 9 15 0
+		// watermelon\src\utils.rs:75
+		(self as usize) & 7
+	and r12d, 7
+	.cv_inline_site_id 36 within 35 inlined_at 4 646 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:253
+		slice_get_unchecked(slice, self)
+	lea rsi, [rip + watermelon::zobrist::tables::EN_PASSANT_TABLE]
+	.cv_inline_site_id 37 within 0 inlined_at 1 255 0
+	.cv_inline_site_id 38 within 37 inlined_at 5 90 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\num\int_macros.rs:595
+		intrinsics::unchecked_add(self, rhs)
+	mov eax, r10d
+		// watermelon\src\game.rs:256
+		undo_state.zobrist_hash ^= zobrist::en_passant_hash(square);
+	xor rbx, qword ptr [rsi + 8*r12]
+		// watermelon\src\game.rs:255
+		let square = unsafe { from.offset_by_unchecked(8 - 16 * self.color as i32) };
+	shl r8d, 4
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\num\int_macros.rs:595
+		intrinsics::unchecked_add(self, rhs)
+	sub eax, r8d
+	add eax, 8
+.LBB0_8:
+		// watermelon\src\game.rs:254
+		undo_state.en_passant_square = if flags == MoveFlags::DoublePawnPush {
+	mov dword ptr [rdx + 16], eax
+		// watermelon\src\game.rs:279
+		undo_state.castling_rights &= !(LOOKUP[from as usize] | LOOKUP[to as usize]);
+	lea rsi, [rip + anon.77bd3b748572c83cf02c0420c329b6d4.0]
+	.cv_inline_site_id 39 within 0 inlined_at 1 278 0
+	.cv_inline_site_id 40 within 39 inlined_at 9 21 0
+	.cv_inline_site_id 41 within 40 inlined_at 4 646 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:253
+		slice_get_unchecked(slice, self)
+	lea r8, [rip + watermelon::zobrist::tables::CASTLING_TABLE]
+		// watermelon\src\game.rs:279
+		undo_state.castling_rights &= !(LOOKUP[from as usize] | LOOKUP[to as usize]);
+	movzx r12d, byte ptr [r9 + rsi]
+		// watermelon\src\game.rs:278
+		undo_state.zobrist_hash ^= zobrist::castling_hash(undo_state.castling_rights);
+	movzx eax, byte ptr [rdx + 20]
+	.cv_inline_site_id 42 within 0 inlined_at 1 279 0
+		// watermelon\src\utils.rs:299
+		CastlingRights(self.0 | rhs.0)
+	or r12b, byte ptr [r10 + rsi]
+		// watermelon\src\game.rs:278
+		undo_state.zobrist_hash ^= zobrist::castling_hash(undo_state.castling_rights);
+	xor rbx, qword ptr [r8 + 8*rax]
+		// watermelon\src\utils.rs:313
+		CastlingRights(self.0 ^ 0b00001111)
+	not r12b
+		// watermelon\src\utils.rs:291
+		self.0 &= rhs.0;
+	and r12b, al
+	mov byte ptr [rdx + 20], r12b
+	.cv_inline_site_id 43 within 0 inlined_at 1 280 0
+	.cv_inline_site_id 44 within 43 inlined_at 9 21 0
+	.cv_inline_site_id 45 within 44 inlined_at 4 646 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:253
+		slice_get_unchecked(slice, self)
+	movzx eax, r12b
+		// watermelon\src\game.rs:280
+		undo_state.zobrist_hash ^= zobrist::castling_hash(undo_state.castling_rights);
+	xor rbx, qword ptr [r8 + 8*rax]
+		// watermelon\src\game.rs:283
+		if flags.is_capture() {
+	test dword ptr [rsp + 88], 16384
+		// watermelon\src\game.rs:280
+		undo_state.zobrist_hash ^= zobrist::castling_hash(undo_state.castling_rights);
+	mov qword ptr [rdx], rbx
+		// watermelon\src\game.rs:283
+		if flags.is_capture() {
+	je .LBB0_10
+		// watermelon\src\game.rs:284
+		let (captured_piece, captured_square) = if flags.is_en_passant() {
+	shrx rax, r15, r9
+	shrx r8, r14, r9
+	shrx rsi, rdi, r9
+	and eax, 1
+	and r8d, 1
+	and esi, 1
+	lea rax, [rax + 2*r8]
+	xor r8d, r8d
+	lea rdi, [rax + 4*rsi]
+	movzx eax, byte ptr [rcx + 48]
+	.cv_inline_site_id 46 within 0 inlined_at 1 293 0
+	.cv_inline_site_id 47 within 46 inlined_at 9 9 0
+	.cv_inline_site_id 48 within 47 inlined_at 4 646 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:253
+		slice_get_unchecked(slice, self)
+	lea rsi, [rip + watermelon::zobrist::tables::PIECE_SQUARE_TABLE]
+		// watermelon\src\game.rs:284
+		let (captured_piece, captured_square) = if flags.is_en_passant() {
+	mov r14d, eax
+	shl r14d, 4
+	add r14d, -8
+	cmp r13d, 5
+	cmovne r14d, r8d
+		// watermelon\src\zobrist.rs:7
+		let index = (color as usize * 8 + piece as usize) * 64 + square as usize;
+	cmove edi, r8d
+	lea r8d, [8*rax]
+	.cv_inline_site_id 49 within 0 inlined_at 1 298 0
+		// watermelon\src\utils.rs:613
+		unsafe { self.color_bitboards.get_unchecked_mut(color as usize) }
+	xor eax, 1
+		// watermelon\src\game.rs:284
+		let (captured_piece, captured_square) = if flags.is_en_passant() {
+	add r14d, r9d
+		// watermelon\src\zobrist.rs:7
+		let index = (color as usize * 8 + piece as usize) * 64 + square as usize;
+	xor r8d, 8
+	or r8d, edi
+	shl r8d, 6
+	add r8, r14
+		// watermelon\src\game.rs:292
+		undo_state.zobrist_hash ^=
+	xor rbx, qword ptr [rsi + 8*r8]
+	mov r8d, 1
+	.cv_inline_site_id 50 within 0 inlined_at 1 295 0
+		// watermelon\src\utils.rs:134
+		Bitboard(1u64 << (square as u32))
+	shlx r8, r8, r14
+		// watermelon\src\game.rs:292
+		undo_state.zobrist_hash ^=
+	mov qword ptr [rdx], rbx
+	mov rbx, qword ptr [rsp + 80]
+	.cv_inline_site_id 51 within 0 inlined_at 1 297 0
+		// watermelon\src\utils.rs:211
+		self.0 ^= rhs.0;
+	xor qword ptr [rbx + 8*rdi], r8
+	xor qword ptr [rbx + 8*rax + 48], r8
+.LBB0_10:
+	.cv_inline_site_id 52 within 0 inlined_at 1 305 0
+		// watermelon\src\utils.rs:352
+		if self.is_promotion() {
+	mov rdi, qword ptr [rsp + 88]
+	mov rsi, qword ptr [rsp + 80]
+	mov r12d, r13d
+	and r12d, 3
+	mov r8d, 1
+	.cv_inline_site_id 53 within 0 inlined_at 1 311 0
+	.cv_inline_site_id 54 within 53 inlined_at 9 9 0
+	.cv_inline_site_id 55 within 54 inlined_at 4 646 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:253
+		slice_get_unchecked(slice, self)
+	lea r15, [rip + watermelon::zobrist::tables::PIECE_SQUARE_TABLE]
+		// watermelon\src\utils.rs:352
+		if self.is_promotion() {
+	inc r12d
+	.cv_inline_site_id 56 within 0 inlined_at 1 303 0
+		// watermelon\src\utils.rs:134
+		Bitboard(1u64 << (square as u32))
+	shlx rax, r8, r10
+	.cv_inline_site_id 57 within 0 inlined_at 1 304 0
+	shlx r8, r8, r9
+		// watermelon\src\utils.rs:352
+		if self.is_promotion() {
+	test di, di
+	cmovns r12, r11
+	.cv_inline_site_id 58 within 0 inlined_at 1 307 0
+		// watermelon\src\utils.rs:211
+		self.0 ^= rhs.0;
+	xor qword ptr [rsi + 8*r11], rax
+		// watermelon\src\game.rs:315
+		if flags.is_castle() {
+	and edi, 57344
+	.cv_inline_site_id 59 within 0 inlined_at 1 308 0
+		// watermelon\src\utils.rs:211
+		self.0 ^= rhs.0;
+	xor qword ptr [rsi + 8*r12], r8
+		// watermelon\src\game.rs:309
+		*position.as_raw_mut().color_bitboard_mut(self.color) ^= from_mask ^ to_mask;
+	movzx ebx, byte ptr [rcx + 48]
+	.cv_inline_site_id 60 within 0 inlined_at 1 309 0
+	.cv_inline_site_id 61 within 60 inlined_at 5 613 0
+	.cv_inline_site_id 62 within 61 inlined_at 4 691 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:266
+		unsafe { slice_get_unchecked(slice, self) }
+	lea r14d, [8*rbx]
+		// watermelon\src\utils.rs:211
+		self.0 ^= rhs.0;
+	mov rax, qword ptr [rsi + r14 + 48]
+		// watermelon\src\zobrist.rs:7
+		let index = (color as usize * 8 + piece as usize) * 64 + square as usize;
+	or r11, r14
+	.cv_inline_site_id 63 within 0 inlined_at 1 312 0
+	or r12, r14
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:253
+		slice_get_unchecked(slice, self)
+	shl r11, 9
+	.cv_inline_site_id 64 within 63 inlined_at 9 9 0
+	.cv_inline_site_id 65 within 64 inlined_at 4 646 0
+	shl r12, 9
+	add r11, r15
+	add r12, r15
+		// watermelon\src\utils.rs:211
+		self.0 ^= rhs.0;
+	btc rax, r9
+	btc rax, r10
+	mov qword ptr [rsi + r14 + 48], rax
+		// watermelon\src\game.rs:311
+		undo_state.zobrist_hash ^= zobrist::piece_square_hash(self.color, piece_from, from);
+	mov rax, qword ptr [rdx]
+	xor rax, qword ptr [r11 + 8*r10]
+		// watermelon\src\game.rs:312
+		undo_state.zobrist_hash ^= zobrist::piece_square_hash(self.color, placed_piece, to);
+	xor rax, qword ptr [r12 + 8*r9]
+		// watermelon\src\game.rs:315
+		if flags.is_castle() {
+	cmp edi, 8192
+	jne .LBB0_12
+		// watermelon\src\game.rs:316
+		let (rook_from, rook_to) = if flags.is_kingside_castle() {
+	xor r8d, r8d
+	test bl, bl
+	mov r9d, 3
+	mov r10d, 59
+	mov r11d, 5
+	mov r12, rsi
+	mov esi, 63
+	cmove r10, r9
+	mov r9d, 56
+	cmove r9, r8
+	mov r8d, 61
+	cmove r8, r11
+	mov r11d, 7
+	cmove rsi, r11
+	cmp r13d, 2
+	cmovne r8, r10
+	cmovne rsi, r9
+	.cv_inline_site_id 66 within 0 inlined_at 1 343 0
+		// watermelon\src\zobrist.rs:7
+		let index = (color as usize * 8 + piece as usize) * 64 + square as usize;
+	or r14b, 3
+	.cv_inline_site_id 67 within 66 inlined_at 9 9 0
+	.cv_inline_site_id 68 within 67 inlined_at 4 646 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\core\src\slice\index.rs:253
+		slice_get_unchecked(slice, self)
+	movzx r9d, r14b
+	shl r9d, 9
+	add r15, r9
+		// watermelon\src\zobrist.rs:9
+		*unsafe { tables::PIECE_SQUARE_TABLE.get_unchecked(index) }
+	mov r9, qword ptr [r15 + 8*rsi]
+		// watermelon\src\game.rs:344
+		undo_state.zobrist_hash ^= zobrist::piece_square_hash(self.color, Piece::Rook, rook_to);
+	xor r9, qword ptr [r15 + 8*r8]
+	xor r9, rax
+	.cv_inline_site_id 69 within 0 inlined_at 1 346 0
+		// watermelon\src\utils.rs:134
+		Bitboard(1u64 << (square as u32))
+	mov eax, 1
+	shlx rax, rax, rsi
+		// watermelon\src\game.rs:344
+		undo_state.zobrist_hash ^= zobrist::piece_square_hash(self.color, Piece::Rook, rook_to);
+	mov qword ptr [rdx], r9
+	.cv_inline_site_id 70 within 0 inlined_at 1 346 0
+		// watermelon\src\utils.rs:205
+		Bitboard(self.0 ^ rhs.0)
+	btc rax, r8
+	.cv_inline_site_id 71 within 0 inlined_at 1 348 0
+		// watermelon\src\utils.rs:211
+		self.0 ^= rhs.0;
+	xor qword ptr [r12 + 24], rax
+	.cv_inline_site_id 72 within 0 inlined_at 1 349 0
+	xor qword ptr [r12 + 8*rbx + 48], rax
+		// watermelon\src\game.rs:354
+		undo_state.zobrist_hash ^= zobrist::SIDE_HASH;
+	mov rax, qword ptr [rdx]
+.LBB0_12:
+		// watermelon\src\game.rs:353
+		self.color = !self.color;
+	movabs r8, -6848531766211617844
+	xor bl, 1
+		// watermelon\src\game.rs:354
+		undo_state.zobrist_hash ^= zobrist::SIDE_HASH;
+	xor r8, rax
+		// watermelon\src\game.rs:353
+		self.color = !self.color;
+	mov byte ptr [rcx + 48], bl
+		// watermelon\src\game.rs:354
+		undo_state.zobrist_hash ^= zobrist::SIDE_HASH;
+	mov qword ptr [rdx], r8
+		// watermelon\src\game.rs:355
+		}
+	.seh_startepilogue
+	lea rsp, [rbp + 120]
+	pop rbx
+	pop rdi
+	pop rsi
+	pop r12
+	pop r13
+	pop r14
+	pop r15
+	pop rbp
+	.seh_endepilogue
+	vzeroupper
+	ret
+.LBB0_1:
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1041
+		self.buf.grow_one();
+	mov rsi, rcx
+	mov ebx, edx
+	vzeroupper
+	call alloc::raw_vec::RawVec<T,A>::grow_one
+	mov edx, ebx
+	.cv_inline_site_id 73 within 17 inlined_at 2 2025 0
+	.cv_inline_site_id 74 within 73 inlined_at 3 296 0
+	.cv_inline_site_id 75 within 74 inlined_at 3 609 0
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\raw_vec\mod.rs:614
+		self.ptr.cast().as_non_null_ptr()
+	mov rax, qword ptr [rsi + 8]
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1037
+		let len = self.len;
+	mov rbx, qword ptr [rsi + 40]
+	mov rcx, rsi
+	jmp .LBB0_2
+.LBB0_3:
+		// %userprofile%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\alloc\src\vec\mod.rs:1041
+		self.buf.grow_one();
+	lea rax, [rcx + 24]
+	mov rdi, rcx
+	mov r14d, edx
+	mov rcx, rax
+	vzeroupper
+	call alloc::raw_vec::RawVec<T,A>::grow_one
+	mov edx, r14d
+	mov rcx, rdi
+	jmp .LBB0_4
