@@ -273,7 +273,7 @@ impl CastlingRights {
     // TODO: Remove when Rust finally stabalizes const traits.
     #[inline]
     #[must_use]
-    pub const fn const_or(self, other: CastlingRights) -> CastlingRights {
+    pub(crate) const fn const_or(self, other: CastlingRights) -> CastlingRights {
         CastlingRights(self.0 | other.0)
     }
 }

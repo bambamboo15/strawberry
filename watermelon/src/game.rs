@@ -227,8 +227,8 @@ impl Game {
     pub unsafe fn play_unchecked(&mut self, mv: Move) {
         let position = self.position().clone();
         let undo_state = self.undo_state().clone();
-        // TODO: As of now this results in two branches as it is not guaranteed that the capacities
-        // are equal. I don't think this is worth it to optimize though.
+        // TODO: This results in two branches as it is not guaranteed that the capacities match.
+        // Through some testing, this is not worth it to optimize.
         // SAFETY: All forms of initialization bring them to the same length. Every play appends one
         // to both, and every undo removes one from both. Thus they always have the same length.
         unsafe { std::hint::assert_unchecked(self.positions.len() == self.undo_state.len()) };

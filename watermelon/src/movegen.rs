@@ -490,7 +490,7 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic, const CAPTURES_ONLY: 
 ///
 /// ## Safety
 ///
-/// The provided en-passant square must be valid.
+/// The provided en-passant square must be valid, and the castling rights must make sense.
 #[inline(always)]
 pub unsafe fn generate_all_legal_moves<const CAPTURES_ONLY: bool>(
     position: &Position,

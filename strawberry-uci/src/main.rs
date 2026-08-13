@@ -1,51 +1,107 @@
+mod engine;
+use crate::engine::Strawberry;
+use std::{str::FromStr, time::Duration};
+use strawberry::structs::SearchTiming;
 use watermelon::prelude::*;
 
-fn perft(mut search: SearchZero<'_, Exclusive>, depth: usize) -> usize {
-    match depth {
-        0 => 1,
-        1 => search.legal_moves().moves().len(),
-        _ => {
-            let mut count = 0;
-            let mut search = search.legal_moves();
-            for index in 0..search.moves().len() {
-                search
-                    .as_one(index)
-                    .test(|game| count += perft(game, depth - 1));
-            }
-            count
-        }
-    }
-}
-
 fn main() {
-    for (name, fen) in [
-        //("start", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-        (
-            "kiwipete",
-            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
-        ),
-        //("tricky", "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1"),
-        //("complex", "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"),
-        //("buggy", "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"),
-        //("position-6", "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w -"),
-    ] {
-        let mut game = Game::from_fen(fen).unwrap();
+    println!("\x1b[38;2;255;100;100mstrawberry - by bambamboo15 on github ^w^\x1b[0m");
 
-        let start = std::time::Instant::now();
-        let depth = 5;
-        let iterations = 1;
-        let mut count = 0;
-        for _ in 0..iterations {
-            count += perft(game.search_mut(), depth);
+    let mut strawberry = Strawberry::new();
+
+    'outer: loop {
+        let mut line = String::new();
+        let _ = std::io::stdin().read_line(&mut line);
+
+        let mut commands = line.split_whitespace();
+        let Some(command) = commands.next() else {
+            continue;
+        };
+
+        match command {
+            "uci" => {
+                println!("id name strawberry 0.1");
+                println!("id author bambamboo15");
+                println!("uciok");
+            }
+            "isready" => {
+                println!("readyok");
+            }
+            "ucinewgame" => {
+                strawberry.clear();
+            }
+            "setoption" => { /* ignore all setoption commands for now */ }
+            "stop" => {
+                strawberry.stop_search();
+            }
+            "quit" => {
+                break 'outer;
+            }
+            "position" => {
+                let mut game = match commands.next() {
+                    Some("startpos") => Game::start_position(),
+                    Some("fen") => {
+                        // Collect up to 6 fields, leaving 'moves' completely untouched.
+                        let mut fen_fields = Vec::new();
+                        for _ in 0..6 {
+                            if commands.clone().next() != Some("moves")
+                                && let Some(field) = commands.next()
+                            {
+                                fen_fields.push(field);
+                            } else {
+                                break;
+                            }
+                        }
+
+                        let fen_string = fen_fields.join(" ");
+                        Game::from_fen(&fen_string).expect("invalid FEN provided")
+                    }
+                    _ => continue 'outer,
+                };
+
+                if commands.next() == Some("moves") {
+                    while let Some(str) = commands.next()
+                        && let Ok(intent) = MoveIntent::from_str(str)
+                        && let Some(mv) = game.intent_to_move(intent)
+                        && game.try_play(mv)
+                    {}
+                }
+
+                if let Some(global_game) = strawberry.game_mut() {
+                    *global_game = game;
+                }
+            }
+            "go" => {
+                let mut timing = SearchTiming::new();
+                while let Some(command) = commands.next() {
+                    match command {
+                        "movetime" | "wtime" | "btime" | "winc" | "binc" => {
+                            let millis = commands.next().unwrap().parse::<u64>().unwrap();
+                            let duration = Duration::from_millis(millis);
+                            match command {
+                                "movetime" => timing.movetime = Some(duration),
+                                "wtime" => timing.wtime = Some(duration),
+                                "btime" => timing.btime = Some(duration),
+                                "winc" => timing.winc = Some(duration),
+                                "binc" => timing.binc = Some(duration),
+                                _ => unreachable!(),
+                            }
+                        }
+                        // Non-standard command just to test the Lasker position.
+                        "lasker" => {
+                            strawberry.clear();
+                            if let Some(global_game) = strawberry.game_mut() {
+                                *global_game =
+                                    Game::from_fen("8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - -").unwrap();
+                            }
+                        }
+                        _ => unimplemented!(),
+                    }
+                }
+
+                strawberry.start_search(timing);
+            }
+            _ => println!("unknown command '{}'", command),
         }
-        let elapsed = start.elapsed();
-
-        println!("\x1b[38;2;255;255;255m{} | {}\x1b[0m", name, fen);
-        println!("depth: {} -> nodes: {}", depth, count / iterations);
-        println!(
-            "{:.2} us | {:.2} Mnps",
-            elapsed.as_micros() as f64 / iterations as f64,
-            count as f64 / (1000000.0 * elapsed.as_secs_f64())
-        );
     }
 }
