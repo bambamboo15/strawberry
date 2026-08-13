@@ -1,5 +1,6 @@
 use std::mem::MaybeUninit;
 
+/// Represents a player color.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Color {
@@ -18,6 +19,7 @@ impl std::ops::Not for Color {
     }
 }
 
+/// Represents a piece independent of color.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Piece {
@@ -29,6 +31,7 @@ pub enum Piece {
     King,
 }
 
+/// Represents a square.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 #[rustfmt::skip]
@@ -88,6 +91,19 @@ impl Square {
     }
 }
 
+/// 64-bit value corresponding to squares on a chessboard, with correspondence as shown:
+/// 
+/// ```txt
+/// 8  56 57 58 59 60 61 62 63
+/// 7  48 49 50 51 52 53 54 55
+/// 6  40 41 42 43 44 45 46 47
+/// 5  32 33 34 35 36 37 38 39
+/// 4  24 25 26 27 28 29 30 31
+/// 3  16 17 18 19 20 21 22 23
+/// 2  08 09 10 11 12 13 14 15
+/// 1  00 01 02 03 04 05 06 07
+///     a  b  c  d  e  f  g  h
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
 pub struct Bitboard(pub u64);
@@ -220,6 +236,7 @@ impl std::ops::Shr<u32> for Bitboard {
     }
 }
 
+/// Castling rights for both sides: white/black + kingside/queenside.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CastlingRights(u8);
 
@@ -292,6 +309,8 @@ impl std::ops::Not for CastlingRights {
     }
 }
 
+/// Flags that can be used to quickly look up useful characteristics of a [`Move`], such as capture
+/// status or promoted-to piece.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum MoveFlags {
@@ -352,6 +371,14 @@ impl MoveFlags {
     }
 }
 
+/// Compact representation of a chess move.
+/// 
+/// - For a natural representation see [`MoveIntent`].
+/// - For a UCI representation see [`MoveIntent`].
+/// - For a SAN representation see [`SanMove`].
+/// 
+/// [`MoveIntent`]: crate::notation::MoveIntent
+/// [`SanMove`]: crate::notation::SanMove
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Move(u16);
 
@@ -563,6 +590,7 @@ impl Position {
     }
 }
 
+/// Stack-allocated list of moves.
 pub struct MoveList {
     moves: [MaybeUninit<Move>; 271],
     length: usize,

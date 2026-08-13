@@ -64,6 +64,7 @@ impl Game {
         })
     }
 
+    /// Clones an existing [`Game`] without cloning its history.
     #[inline]
     #[must_use]
     pub fn from_branch(game: &Game) -> Self {

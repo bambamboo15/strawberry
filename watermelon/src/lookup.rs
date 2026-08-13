@@ -1,5 +1,8 @@
 use crate::utils::*;
 
+/// Computes the bitboard of bishop attack squares from a square and an occupancy bitboard.
+/// 
+/// This does not include the bishop itself, but does include attacked pieces.
 #[inline(always)]
 pub fn bishop_attack(from: Square, occupied: Bitboard) -> Bitboard {
     let base = (from as usize) << 9;
@@ -10,6 +13,9 @@ pub fn bishop_attack(from: Square, occupied: Bitboard) -> Bitboard {
     Bitboard(unsafe { *tables::BISHOP_ATTACKS.get_unchecked(index) })
 }
 
+/// Computes the bitboard of bishop attack squares from a square without any occupancy.
+/// 
+/// This does not include the bishop itself.
 #[inline(always)]
 pub fn bishop_attack_unoccupied(from: Square) -> Bitboard {
     let base = (from as usize) << 9;
@@ -18,6 +24,9 @@ pub fn bishop_attack_unoccupied(from: Square) -> Bitboard {
     Bitboard(unsafe { *tables::BISHOP_ATTACKS.get_unchecked(base) })
 }
 
+/// Computes the bitboard of rook attack squares from a square and an occupancy bitboard.
+/// 
+/// This does not include the rook itself, but does include attacked pieces.
 #[inline(always)]
 pub fn rook_attack(from: Square, occupied: Bitboard) -> Bitboard {
     let base = (from as usize) << 12;
@@ -28,6 +37,9 @@ pub fn rook_attack(from: Square, occupied: Bitboard) -> Bitboard {
     Bitboard(unsafe { *tables::ROOK_ATTACKS.get_unchecked(index) })
 }
 
+/// Computes the bitboard of rook attack squares from a square without any occupancy.
+/// 
+/// This does not include the rook itself.
 #[inline(always)]
 pub fn rook_attack_unoccupied(from: Square) -> Bitboard {
     let base = (from as usize) << 12;
@@ -36,11 +48,13 @@ pub fn rook_attack_unoccupied(from: Square) -> Bitboard {
     Bitboard(unsafe { *tables::ROOK_ATTACKS.get_unchecked(base) })
 }
 
+/// Computes the bitboard of squares that a knight attacks.
 #[inline(always)]
 pub fn knight_attack(from: Square) -> Bitboard {
     Bitboard(tables::KNIGHT_ATTACKS[from as usize])
 }
 
+/// Computes the bitboard of squares that a king attacks.
 #[inline(always)]
 pub fn king_attack(from: Square) -> Bitboard {
     Bitboard(tables::KING_ATTACKS[from as usize])

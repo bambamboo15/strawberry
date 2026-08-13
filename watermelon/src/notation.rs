@@ -311,6 +311,7 @@ impl std::fmt::Display for SanMove {
 }
 
 impl Game {
+    /// Constructs a new [`Game`] from the starting position.
     #[inline]
     #[must_use]
     pub fn start_position() -> Self {
