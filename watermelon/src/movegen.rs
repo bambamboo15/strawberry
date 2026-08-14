@@ -292,8 +292,7 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic, const CAPTURES_ONLY: 
         //   Same logic as left captures.
         right_capture &= Color::Opposite::left_pawn_attack(pin_d) | pawns_ud;
 
-        // Branch on if pawns are on last rank or not. There's a lot of extreme optimizations
-        // being done at the pawns level because there's normally a lot of pawns on the board.
+        // If no pawns are on the lask pawn rank, which holds true often, skip this whole branch.
         if !(pawns & Color::PAWN_LAST_RANK).is_empty() {
             std::hint::cold_path();
 
@@ -398,22 +397,10 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic, const CAPTURES_ONLY: 
 
     // Generate legal bishop moves (queens included).
     {
-        let bishops_queens = (bishops | queens) & !pin_hv;
-        let unpinned_bishops = bishops_queens & !pin_d;
-        let pinned_bishops = bishops_queens & pin_d; // CHANGE: Removed `& checkmask`.
-        for from in unpinned_bishops {
-            let legal = lookup::bishop_attack(from, occupied) & moveable;
-            for to in legal {
-                let mv = Move::new(
-                    from,
-                    to,
-                    quiet_or_capture::<CAPTURES_ONLY>(other_occupancy, to),
-                );
-                on_move(mv);
-            }
-        }
-        for from in pinned_bishops {
-            let legal = lookup::bishop_attack(from, occupied) & moveable & pin_d;
+        let bishops_unpinned_horizontally = (bishops | queens) & !pin_hv;
+        for from in bishops_unpinned_horizontally {
+            let legal = lookup::bishop_attack(from, occupied) & moveable &
+                std::hint::select_unpredictable(pin_d.is_set_at(from), pin_d, Bitboard::FULL);
             for to in legal {
                 let mv = Move::new(
                     from,
@@ -427,22 +414,10 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic, const CAPTURES_ONLY: 
 
     // Generate legal rook moves (queens included).
     {
-        let rooks_queens = (rooks | queens) & !pin_d;
-        let unpinned_rooks = rooks_queens & !pin_hv;
-        let pinned_rooks = rooks_queens & pin_hv; // CHANGE: Removed `& checkmask`.
-        for from in unpinned_rooks {
-            let legal = lookup::rook_attack(from, occupied) & moveable;
-            for to in legal {
-                let mv = Move::new(
-                    from,
-                    to,
-                    quiet_or_capture::<CAPTURES_ONLY>(other_occupancy, to),
-                );
-                on_move(mv);
-            }
-        }
-        for from in pinned_rooks {
-            let legal = lookup::rook_attack(from, occupied) & moveable & pin_hv;
+        let rooks_unpinned_diagonally = (rooks | queens) & !pin_d;
+        for from in rooks_unpinned_diagonally {
+            let legal = lookup::rook_attack(from, occupied) & moveable &
+                std::hint::select_unpredictable(pin_hv.is_set_at(from), pin_hv, Bitboard::FULL);
             for to in legal {
                 let mv = Move::new(
                     from,

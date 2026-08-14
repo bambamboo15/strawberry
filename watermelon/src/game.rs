@@ -147,8 +147,7 @@ impl Game {
         let position = self.position();
         let color = self.color;
         let square = position.king_square(self.color);
-        // SAFETY: This will always represent a valid chess position.
-        let attackers = crate::movegen::square_attackers(position, !color, square);
+        let attackers = movegen::square_attackers(position, !color, square);
         attackers != Bitboard::EMPTY
     }
 
@@ -259,9 +258,9 @@ impl Game {
             None
         };
 
-        // A castling right is lost when its king/rook moves, or when its rook is captured. LOOKUP
+        // A castling right is lost when its king/rook moves, or when its rook is captured. `LOOKUP`
         // maps these origin/destination squares to the rights they invalidate. Thus from/to can be
-        // handled without inspecting the pieces themselves. [This comment was written by ChatGPT]
+        // handled without inspecting the pieces themselves.
         const LOOKUP: [CastlingRights; 64] = {
             let mut table = [CastlingRights::NONE; 64];
             table[White::CASTLE_KING_FROM_SQUARE as usize] =

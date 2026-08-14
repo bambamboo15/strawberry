@@ -74,12 +74,11 @@ fn pext_u64(a: u64, mask: u64) -> u64 {
         let mut res = 0;
         let mut bit = 1;
         while mask != 0 {
-            let lowest_mask_bit = mask & mask.wrapping_neg();
-            if a & lowest_mask_bit != 0 {
+            if a & mask & mask.wrapping_neg() != 0 {
                 res |= bit;
             }
             bit <<= 1;
-            mask ^= lowest_mask_bit;
+            mask &= mask - 1;
         }
         res
     }
