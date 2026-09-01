@@ -227,14 +227,16 @@ fn compute_checkmask_and_pinmasks<Color: ColorLogic>(
 
 // `CAPTURES_ONLY` is experimental but should work!
 #[inline(never)]
-unsafe fn generate_all_legal_moves_impl<Color: ColorLogic, const CAPTURES_ONLY: bool, OnMove>(
+unsafe fn generate_all_legal_moves_impl<
+    Color: ColorLogic,
+    const CAPTURES_ONLY: bool,
+    OnMove: FnMut(Move),
+>(
     position: &Position,
     castling_rights: CastlingRights,
     en_passant_square: Option<Square>,
     mut on_move: OnMove,
-) where
-    OnMove: FnMut(Move),
-{
+) {
     // Obtain all pieces.
     let pawns = position.bitboard(Piece::Pawn, Color::COLOR);
     let knights = position.bitboard(Piece::Knight, Color::COLOR);
@@ -399,8 +401,9 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic, const CAPTURES_ONLY: 
     {
         let bishops_unpinned_horizontally = (bishops | queens) & !pin_hv;
         for from in bishops_unpinned_horizontally {
-            let legal = lookup::bishop_attack(from, occupied) & moveable &
-                std::hint::select_unpredictable(pin_d.is_set_at(from), pin_d, Bitboard::FULL);
+            let legal = lookup::bishop_attack(from, occupied)
+                & moveable
+                & std::hint::select_unpredictable(pin_d.is_set_at(from), pin_d, Bitboard::FULL);
             for to in legal {
                 let mv = Move::new(
                     from,
@@ -416,8 +419,9 @@ unsafe fn generate_all_legal_moves_impl<Color: ColorLogic, const CAPTURES_ONLY: 
     {
         let rooks_unpinned_diagonally = (rooks | queens) & !pin_d;
         for from in rooks_unpinned_diagonally {
-            let legal = lookup::rook_attack(from, occupied) & moveable &
-                std::hint::select_unpredictable(pin_hv.is_set_at(from), pin_hv, Bitboard::FULL);
+            let legal = lookup::rook_attack(from, occupied)
+                & moveable
+                & std::hint::select_unpredictable(pin_hv.is_set_at(from), pin_hv, Bitboard::FULL);
             for to in legal {
                 let mv = Move::new(
                     from,
@@ -488,7 +492,7 @@ pub unsafe fn generate_all_legal_moves<const CAPTURES_ONLY: bool>(
     // SAFETY: This callback is only used as the callback argument of the implementation function.
     // The implementation function is guaranteed to not push more than 271 moves, and the move list
     // starts from zero and has a 271 move capacity. Thus, this is safe where it is used.
-    let callback = |mv| unsafe { moves.push_unchecked(mv) };
+    let on_move = |mv| unsafe { moves.push_unchecked(mv) };
 
     // SAFETY: The implementation function has the same safety guarantee, that is, the provided
     // position details are valid.
@@ -498,13 +502,13 @@ pub unsafe fn generate_all_legal_moves<const CAPTURES_ONLY: bool>(
                 position,
                 castling_rights,
                 en_passant_square,
-                callback,
+                on_move,
             ),
             Color::Black => generate_all_legal_moves_impl::<Black, CAPTURES_ONLY, _>(
                 position,
                 castling_rights,
                 en_passant_square,
-                callback,
+                on_move,
             ),
         }
     }

@@ -480,7 +480,6 @@ impl RawPosition {
     #[inline]
     #[must_use]
     pub fn piece_bitboard(&self, piece: Piece) -> Bitboard {
-        // LLVM_FAILS_ELIDE_BOUNDS_CHECK_WHEN_INLINING
         unsafe { *self.piece_bitboards.get_unchecked(piece as usize) }
     }
 
@@ -488,7 +487,6 @@ impl RawPosition {
     #[inline]
     #[must_use]
     pub fn color_bitboard(&self, color: Color) -> Bitboard {
-        // LLVM_FAILS_ELIDE_BOUNDS_CHECK_WHEN_INLINING
         unsafe { *self.color_bitboards.get_unchecked(color as usize) }
     }
 
@@ -583,7 +581,6 @@ impl RawPosition {
     ///
     /// If you are a user do not rely on this behavior: this does not trigger undefined behavior
     /// on empty squares and returns [`Piece::Pawn`] instead.
-    // LLVM_FAILS_ELIDE_UNREACHABLE_BRANCH_WHEN_INLINING
     #[inline]
     #[must_use]
     pub unsafe fn piece_at_unchecked(&self, square: Square) -> Piece {
@@ -602,14 +599,12 @@ impl RawPosition {
     #[inline]
     #[must_use]
     pub unsafe fn piece_bitboard_mut(&mut self, piece: Piece) -> &mut Bitboard {
-        // LLVM_FAILS_ELIDE_BOUNDS_CHECK_WHEN_INLINING
         unsafe { self.piece_bitboards.get_unchecked_mut(piece as usize) }
     }
 
     #[inline]
     #[must_use]
     pub unsafe fn color_bitboard_mut(&mut self, color: Color) -> &mut Bitboard {
-        // LLVM_FAILS_ELIDE_BOUNDS_CHECK_WHEN_INLINING
         unsafe { self.color_bitboards.get_unchecked_mut(color as usize) }
     }
 }

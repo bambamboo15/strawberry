@@ -78,6 +78,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "strawberry-perft"
+version = "0.1.0"
+dependencies = [
+ "watermelon",
+]
+
+[[package]]
 name = "strawberry-uci"
 version = "0.1.0"
 dependencies = [

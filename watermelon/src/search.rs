@@ -10,10 +10,6 @@ pub struct Exclusive;
 pub trait Mutability {
     type Borrow<'a, T: 'a>;
 
-    // These functions were NOT written by a clanker
-    // I needed these because I wanted to abstract over mutability
-    // took me an extremely long 30 minutes of effort :(
-    // that's a lot of YouTube shorts
     fn as_shared<'a: 'b, 'b, T>(borrow: &'b Self::Borrow<'a, T>) -> &'b T;
     fn as_reborrowed<'a: 'b, 'b, T>(borrow: &'b mut Self::Borrow<'a, T>) -> Self::Borrow<'b, T>;
 }
